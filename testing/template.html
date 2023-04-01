@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+
+    <script src="http://localhost:4001/static/integration.min.js"></script>
+  </head>
+  <body>
+    <div id="donmo-roundup"></div>
+    <script>
+      const donmo = new DonmoRoundup()
+
+      donmo.build({
+        publicKey:
+          'pk_test_2b4a518229f004fef9cc68fe709b8895d9095b90d0afe68bd5ce9fd825e28794',
+        width: '100%',
+        // isBackendBased: true,
+        orderId: 'sodigjisd',
+        integrationTitle: 'Roundup for AFU!',
+        donateMessage: 'Round up',
+        thankMessage: 'Thank you! ',
+        errorMessage: 'Some error occurred :(',
+        addDonationAction: () => console.log('add donation action'),
+        removeDonationAction: () => console.log('remove donation action'),
+        getExistingDonation: () => 4.2,
+        getGrandTotal: () => 20,
+      })
+    </script>
+  </body>
+</html>

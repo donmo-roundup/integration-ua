@@ -1,0 +1,26 @@
+{
+  "name": "integration",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "node testing/server & node testing/static",
+    "babel": "./node_modules/.bin/babel src/integration.js --out-file dist/integration.min.js",
+    "minify": "node src/minifiers/html-minifier.js & npm run babel"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "cors": "^2.8.5",
+    "express": "^4.18.2"
+  },
+  "devDependencies": {
+    "@babel/cli": "^7.21.0",
+    "@babel/core": "^7.21.4",
+    "@babel/preset-env": "^7.21.4",
+    "babel-minify": "^0.5.2",
+    "babel-preset-minify": "^0.5.2",
+    "html-minifier": "^4.0.0"
+  },
+  "browserslist": "> 0.25%, not dead"
+}
