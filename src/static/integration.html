@@ -11,6 +11,7 @@
     * {
       margin: 0;
       padding: 0;
+      user-select: none;
     }
 
     h4 {
@@ -32,6 +33,10 @@
       border-top: 0;
       border-radius: 25px;
       font-family: 'Rubik', sans-serif;
+      position: relative;
+      z-index: 0;
+      background-color: #fff;
+      height: max-content;
     }
     #integration #donmo-roundup-heading {
       background-color: #005cb3;
@@ -112,7 +117,6 @@
       position: relative;
       box-sizing: border-box;
       color: #000;
-      background: #fff;
       background-clip: padding-box;
       border: solid 1px transparent;
       border-radius: 15px;
@@ -124,6 +128,7 @@
         #fdd901
       );
       --animation-state: none;
+      background-color: #fff;
     }
 
     #integration #donmo-roundup-button::before {
@@ -196,9 +201,10 @@
   <main>
     <div id="donmo-content">
       <div id="donmo-donation-wrapper">
-        <h4>Ваш внесок в перемогу:</h4>
+        <h4 id="contribution-message"></h4>
         <div id="donmo-donation-box">
-          ₴&nbsp;
+          <span id="donmo-currency">₴</span>
+          &nbsp;
           <span id="donmo-donation"></span>
           <div id="donmo-donation-checkmark">
             <svg x="0px" y="0px" fill="none" viewBox="0 0 25 42">
@@ -209,12 +215,13 @@
       </div>
 
       <div id="donmo-funds">
-        <h4>Бенефіціари:</h4>
+        <h4 id="funds-title">Бенефіціари:</h4>
         <div id="logos">
           <a href="https://savelife.in.ua" target="_blank">
             <img
               src="https://static.donmo.org/images/come-back-alive.svg"
               alt="savelife.in.ua"
+              id="come-back-alive-logo"
               title="Повернись Живим" />
           </a>
           <a href="https://u24.gov.ua" target="_blank">
@@ -222,6 +229,7 @@
               src="https://static.donmo.org/images/united-24.jpg"
               width="40px"
               alt="u24.gov.ua"
+              id="united24-logo"
               title="United24" />
           </a>
           <a href="https://prytulafoundation.org" target="_blank">
@@ -229,6 +237,7 @@
               src="https://static.donmo.org/images/serhiy-prytula-fund.svg"
               alt="prytulafoundation.org"
               width="90px"
+              id="prytula-fund-logo"
               title="Фонд Сергія Притули" />
           </a>
         </div>
@@ -253,12 +262,14 @@
   </main>
 
   <footer>
-    <i
-      >З любов'ю, від
-      <b id="donmo-name"
-        ><a href="https://donmo.org/" target="_blank">Донмо</a></b
-      >
+    <span>
+      <i>
+        <span id="with-love-message"></span>
+        <b id="donmo-name"
+          ><a href="https://donmo.org/" target="_blank">Donmo</a></b
+        >
+      </i>
       💛💙
-    </i>
+    </span>
   </footer>
 </div>

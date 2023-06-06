@@ -1,4 +1,5 @@
 <!DOCTYPE html>
+
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
@@ -14,19 +15,16 @@
       const donmo = new DonmoRoundup()
 
       donmo.build({
-        publicKey:
-          'pk_test_2b4a518229f004fef9cc68fe709b8895d9095b90d0afe68bd5ce9fd825e28794',
+        publicKey: '<%=htmlWebpackPlugin.options.params.publicKey%>',
         width: '100%',
         // isBackendBased: true,
-        orderId: 'sodigjisd',
-        integrationTitle: 'Roundup for AFU!',
-        donateMessage: 'Round up',
-        thankMessage: 'Thank you! ',
-        errorMessage: 'Some error occurred :(',
+        language: '<%=htmlWebpackPlugin.options.params.language%>',
+
+        orderId: '<%=htmlWebpackPlugin.options.params.orderId%>',
         addDonationAction: () => console.log('add donation action'),
         removeDonationAction: () => console.log('remove donation action'),
-        getExistingDonation: () => 4.2,
-        getGrandTotal: () => 20,
+        getExistingDonation: () => null,
+        getGrandTotal: () => (Math.random() * 100 + Math.random()).toFixed(2),
       })
     </script>
   </body>

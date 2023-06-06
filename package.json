@@ -4,23 +4,26 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "node testing/server & node testing/static",
-    "babel": "./node_modules/.bin/babel src/integration.js --out-file dist/integration.min.js",
-    "minify": "node src/minifiers/html-minifier.js & npm run babel"
+    "static": "node dist/testing/static",
+    "template": "node dist/testing/template-server",
+    "build": "webpack",
+    "dev": "webpack --env development --mode development && (node dist/dev/testing/static & node dist/dev/testing/template-server)",
+    "prod": "webpack --env production --mode production && (node dist/prod/testing/static & node dist/prod/testing/template-server)"
   },
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "copy-webpack-plugin": "^11.0.0",
     "cors": "^2.8.5",
-    "express": "^4.18.2"
+    "express": "^4.18.2",
+    "html-webpack-plugin": "^5.5.1"
   },
   "devDependencies": {
-    "@babel/cli": "^7.21.0",
-    "@babel/core": "^7.21.4",
-    "@babel/preset-env": "^7.21.4",
-    "babel-minify": "^0.5.2",
-    "babel-preset-minify": "^0.5.2",
-    "html-minifier": "^4.0.0"
+    "dotenv": "^16.1.4",
+    "dotenv-webpack": "^8.0.1",
+    "nanoid": "^3.3.6",
+    "webpack": "^5.85.1",
+    "webpack-cli": "^5.1.3"
   },
   "browserslist": "> 0.25%, not dead"
 }

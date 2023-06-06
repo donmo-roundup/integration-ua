@@ -1,5 +1,8 @@
+import { API_URL, TRANSLATIONS_URL, INTEGRATION_URL } from './constants'
+
 class DonmoRoundup {
-  #API_URL = 'https://api.donmo.org/v1/ua/donations'
+  #API_URL = API_URL
+  #TRANSLATIONS_URL = TRANSLATIONS_URL
   // Required functions from store
   #getExistingDonation
   #getGrandTotal
@@ -12,11 +15,9 @@ class DonmoRoundup {
   #orderId
   #width
 
-  #donateMessage = 'Округлити'
-  #thankMessage = 'Дякуємо за донат! Слава Україні!'
-  #integrationTitle = 'Округліть для ЗСУ!'
-  #errorMessage = 'Щось сталось, але спробуйте ще раз!'
-  #cancelDonationMessage = 'Скасувати Донат'
+  #contentData = {}
+  #language
+  #currency
   // Integration internal values
 
   // -- Constants
@@ -34,9 +35,45 @@ class DonmoRoundup {
   }
 
   // Layout manipulations
-  #setIntegrationTitle() {
+
+  async #setDefaultContentData() {
+    const translationsResponse = await fetch(this.#TRANSLATIONS_URL)
+
+    const translations = await translationsResponse.json()
+    const defaultData = this.#language
+      ? translations[this.#language]
+      : translations.ua
+
+    for (const key in defaultData) {
+      if (!this.#contentData[key]) {
+        this.#contentData[key] = defaultData[key]
+      }
+    }
+  }
+
+  #setDefaultContent() {
+    this.#shadow.getElementById('contribution-message').innerText =
+      this.#contentData.contributionMessage
+
+    this.#shadow.getElementById('funds-title').innerText =
+      this.#contentData.funds.title
+
+    this.#shadow.getElementById('prytula-fund-logo').title =
+      this.#contentData.funds.prytulaFund
+
+    this.#shadow.getElementById('come-back-alive-logo').title =
+      this.#contentData.funds.comeBackAlive
+
+    this.#shadow.getElementById('united24-logo').title =
+      this.#contentData.funds.united24
+
+    this.#shadow.getElementById('with-love-message').innerText =
+      this.#contentData.withLove
+
     this.#shadow.getElementById('donmo-roundup-heading').innerText =
-      this.#integrationTitle
+      this.#contentData.integrationTitle
+
+    this.#shadow.getElementById('donmo-currency').innerText = this.#currency
   }
 
   #setDonation(donationAmount) {
@@ -69,15 +106,15 @@ class DonmoRoundup {
     })
 
     // Set thank you message
-    this.#setRoundupButtonText(this.#thankMessage)
+    this.#setRoundupButtonText(this.#contentData.thankMessage)
 
     this.#shadow.getElementById('donmo-roundup-button').title =
-      this.#cancelDonationMessage
+      this.#contentData.cancelDonationMessage
   }
 
   #setErrorView() {
     // Show error
-    this.#setRoundupButtonText(this.#errorMessage)
+    this.#setRoundupButtonText(this.#contentData.errorMessage)
 
     // Go back to normal view in 2.5s
     setTimeout(() => {
@@ -87,7 +124,7 @@ class DonmoRoundup {
   }
 
   #setClearView() {
-    this.#setRoundupButtonText(this.#donateMessage)
+    this.#setRoundupButtonText(this.#contentData.roundupMessage)
 
     this.#shadow
       .getElementById('donmo-button-checkmark')
@@ -222,7 +259,7 @@ class DonmoRoundup {
           },
           body: JSON.stringify(donationDoc),
         })
-
+        console.log('RESULT', result)
         const response = await result.json()
 
         if (!response || response.status !== 200) throw Error
@@ -269,29 +306,26 @@ class DonmoRoundup {
   // Integration logic
   async #initialize() {
     // Initialize shadow
+    document.getElementById('donmo-roundup').style.all = 'initial'
     this.#shadow = document
       .getElementById('donmo-roundup')
       .attachShadow({ mode: 'open' })
 
     // Fetch integration
 
-    // const response = await fetch(
-    //   'http://localhost:4001/static/integration.min.html'
-    // )
-    const response = await fetch(
-      'https://static.donmo.org/integration.min.html'
-    )
+    const response = await fetch(INTEGRATION_URL)
+
     const html = await response.text()
 
     const contentNode = document.createElement('div')
     contentNode.insertAdjacentHTML('beforeend', html)
     this.#shadow.appendChild(contentNode)
 
-    this.#setIntegrationTitle()
+    this.#setDefaultContent()
 
     this.#setDonation(0.01)
 
-    this.#setRoundupButtonText(this.#donateMessage)
+    this.#setRoundupButtonText(this.#contentData.roundupMessage)
 
     // Adjust the integration width on start and every next resize
     this.#resizeObserver = new ResizeObserver((entries) => {
@@ -378,13 +412,16 @@ class DonmoRoundup {
 
     width,
     orderId,
+    language = 'ua',
+    currency = '₴',
 
-    donateMessage = 'Округлити',
-    thankMessage = 'Дякуємо за донат! Слава Україні!',
-    integrationTitle = 'Округліть для ЗСУ!',
-    errorMessage = 'Щось сталось, але спробуйте ще раз!',
+    roundupMessage,
+    thankMessage,
+    integrationTitle,
+    errorMessage,
   }) {
     try {
+      console.log('isBackendBased', isBackendBased)
       // Initialize the commands
       this.#getExistingDonation = () => {
         const donation = parseFloat(getExistingDonation())
@@ -401,14 +438,18 @@ class DonmoRoundup {
       this.#width = width
       this.#orderId = orderId
 
-      this.#donateMessage = donateMessage
-      this.#thankMessage = thankMessage
-      this.#integrationTitle = integrationTitle
-      this.#errorMessage = errorMessage
+      this.#language = language
+      this.#currency = currency
+
+      this.#contentData.roundupMessage = roundupMessage
+      this.#contentData.thankMessage = thankMessage
+      this.#contentData.integrationTitle = integrationTitle
+      this.#contentData.errorMessage = errorMessage
+
+      await this.#setDefaultContentData()
 
       // Initialize the integration
-      await this.#initialize(this.#publicKey)
-
+      await this.#initialize()
       this.#isLoaded = true
 
       // Refresh the integration - sets correct donationAmount
@@ -447,7 +488,10 @@ class DonmoRoundup {
         }
       }
     } catch (err) {
+      console.log('Donmo integration error', err)
       this.#shadow.getElementById('integration').style.display = 'none'
     }
   }
 }
+
+export default DonmoRoundup
