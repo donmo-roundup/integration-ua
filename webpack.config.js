@@ -20,7 +20,7 @@ module.exports = (env) => {
       path: outputPath,
       library: 'DonmoRoundup',
       libraryExport: 'default',
-      filename: 'integration.min.js',
+      filename: 'integration.js',
     },
     plugins: [
       new Dotenv({
@@ -28,7 +28,7 @@ module.exports = (env) => {
       }),
       new HtmlWebpackPlugin({
         template: './src/static/integration.html',
-        filename: 'integration.min.html',
+        filename: 'integration.html',
         minify: {
           collapseWhitespace: true,
           keepClosingSlash: true,
@@ -41,7 +41,7 @@ module.exports = (env) => {
         template: './testing/template.html',
         params: {
           publicKey: process.env.DONMO_PUBLIC_KEY,
-          language: 'ua',
+          language: 'uk',
           orderId: nanoid(10),
         },
         inject: false,

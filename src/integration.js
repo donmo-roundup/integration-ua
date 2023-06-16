@@ -17,7 +17,6 @@ class DonmoRoundup {
 
   #contentData = {}
   #language
-  #currency
   // Integration internal values
 
   // -- Constants
@@ -38,11 +37,11 @@ class DonmoRoundup {
 
   async #setDefaultContentData() {
     const translationsResponse = await fetch(this.#TRANSLATIONS_URL)
-
     const translations = await translationsResponse.json()
-    const defaultData = this.#language
-      ? translations[this.#language]
-      : translations.ua
+    const defaultData =
+      this.#language && translations[this.#language]
+        ? translations[this.#language]
+        : translations.en
 
     for (const key in defaultData) {
       if (!this.#contentData[key]) {
@@ -72,8 +71,6 @@ class DonmoRoundup {
 
     this.#shadow.getElementById('donmo-roundup-heading').innerText =
       this.#contentData.integrationTitle
-
-    this.#shadow.getElementById('donmo-currency').innerText = this.#currency
   }
 
   #setDonation(donationAmount) {
@@ -259,7 +256,6 @@ class DonmoRoundup {
           },
           body: JSON.stringify(donationDoc),
         })
-        console.log('RESULT', result)
         const response = await result.json()
 
         if (!response || response.status !== 200) throw Error
@@ -403,25 +399,23 @@ class DonmoRoundup {
 
   async build({
     publicKey,
-    isBackendBased,
+    orderId,
 
     getExistingDonation,
     getGrandTotal,
     addDonationAction,
     removeDonationAction,
 
-    width,
-    orderId,
-    language = 'ua',
-    currency = '₴',
-
     roundupMessage,
     thankMessage,
     integrationTitle,
     errorMessage,
+
+    width,
+    language = 'uk',
+    isBackendBased = false,
   }) {
     try {
-      console.log('isBackendBased', isBackendBased)
       // Initialize the commands
       this.#getExistingDonation = () => {
         const donation = parseFloat(getExistingDonation())
@@ -439,7 +433,6 @@ class DonmoRoundup {
       this.#orderId = orderId
 
       this.#language = language
-      this.#currency = currency
 
       this.#contentData.roundupMessage = roundupMessage
       this.#contentData.thankMessage = thankMessage
