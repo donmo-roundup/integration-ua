@@ -293,7 +293,6 @@ function DonmoRoundup({
         const { donationAmount: calculatedDonation, currencySymbol } =
           await calculateDonation(orderAmount)
         setDonation(calculatedDonation)
-        console.log('currencySymbol', currencySymbol)
         setCurrencySymbol(currencySymbol)
         setRoundedUp(false)
       }
