@@ -36,6 +36,10 @@ function DonmoRoundup({
       currentDonation.toFixed(2)
   }
 
+  function setCurrencySymbol(currencySymbol) {
+    shadow.getElementById('donmo-currency').textContent = currencySymbol
+  }
+
   function setRoundedUp(value) {
     isRoundedUp = value
   }
@@ -181,9 +185,9 @@ function DonmoRoundup({
         pk: publicKey,
       },
     })
-    const { donationAmount } = await res.json()
+    const data = await res.json() // {donationAmount, currencySymbol}
 
-    return donationAmount
+    return data
   }
 
   async function checkDonationAmount() {
@@ -286,8 +290,10 @@ function DonmoRoundup({
       const orderAmount = getGrandTotal()
 
       if (!existingDonation) {
-        const calculatedDonation = await calculateDonation(orderAmount)
+        const { donationAmount: calculatedDonation, currencySymbol } =
+          await calculateDonation(orderAmount)
         setDonation(calculatedDonation)
+        setCurrencySymbol(currencySymbol)
         setRoundedUp(false)
       }
 
