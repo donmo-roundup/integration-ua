@@ -12,9 +12,7 @@
   <body>
     <div id="donmo-roundup"></div>
     <script>
-      const donmo = new DonmoRoundup()
-
-      donmo.build({
+      const donmo = DonmoRoundup({
         publicKey: '<%=htmlWebpackPlugin.options.params.publicKey%>',
         width: '100%',
         // isBackendBased: true,
@@ -26,6 +24,8 @@
         getExistingDonation: () => null,
         getGrandTotal: () => (Math.random() * 100 + Math.random()).toFixed(2),
       })
+
+      donmo.build()
     </script>
   </body>
 </html>
