@@ -293,20 +293,21 @@ function DonmoRoundup({
         const { donationAmount: calculatedDonation, currencySymbol } =
           await calculateDonation(orderAmount)
         setDonation(calculatedDonation)
+        console.log('currencySymbol', currencySymbol)
         setCurrencySymbol(currencySymbol)
         setRoundedUp(false)
       }
 
       if (existingDonation) {
-        const calculatedDonation = await calculateDonation(
-          orderAmount - existingDonation
-        )
+        const { donationAmount: calculatedDonation, currencySymbol } =
+          await calculateDonation(orderAmount - existingDonation)
 
         // Compare if the existing donation is the right one or needs to be recalculated
 
         // If yes - it's already rounded up successfully
         if (calculatedDonation === existingDonation) {
           setDonation(existingDonation)
+          setCurrencySymbol(currencySymbol)
           setSuccessRoundupView()
           setRoundedUp(true)
         }
