@@ -42,7 +42,7 @@ module.exports = (env) => {
         template: './testing/template.html',
         params: {
           publicKey: process.env.DONMO_PUBLIC_KEY,
-          language: 'uk',
+          language: 'en',
           orderId: nanoid(10),
         },
         inject: false,

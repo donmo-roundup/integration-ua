@@ -5,7 +5,7 @@
     "integrationTitle": "Округліть для ЗСУ!",
     "errorMessage": "Щось сталось, але спробуйте ще раз",
     "cancelDonationMessage": "Скасувати Донат",
-    "contributionMessage": "Ваш внесок в перемогу",
+    "contributionMessage": "Ваш внесок в перемогу:",
     "withLove": "З любов'ю, від ",
     "funds": {
       "title": "Фонди:",
@@ -20,7 +20,7 @@
     "integrationTitle": "Round up for Ukrainian Army!",
     "errorMessage": "Something happened, but please try again",
     "cancelDonationMessage": "Cancel donation",
-    "contributionMessage": "Your contribution to the victory",
+    "contributionMessage": "Your contribution to the victory:",
     "funds": {
       "title": "Funds:",
       "prytulaFund": "Serhiy Prytula Charity Foundation",

@@ -5,7 +5,7 @@ const donationBlockElements = ['#donmo-donation-box', '#donmo-donation']
 function DonmoRoundup({
   publicKey,
   orderId,
-  language = 'uk',
+  language = 'en',
 
   getExistingDonation,
   getGrandTotal,
@@ -19,6 +19,8 @@ function DonmoRoundup({
 
   isBackendBased = false,
 }) {
+  const lang = ['en', 'uk'].includes(language) ? language : 'en'
+
   // -- Constants
   const shadow = document
     .getElementById('donmo-roundup')
@@ -148,7 +150,7 @@ function DonmoRoundup({
     const translationsResponse = await fetch(TRANSLATIONS_URL)
     const translations = await translationsResponse.json()
 
-    contentData = translations[language]
+    contentData = translations[lang]
     // fill content data with custom data
     for (const key in contentData) {
       if (customData[key]) {
@@ -210,9 +212,7 @@ function DonmoRoundup({
         orderId,
       }
 
-      // If not backend-based, create donation on a fly
       if (!isBackendBased) {
-        // Create donation request
         const result = await fetch(API_URL, {
           method: 'POST',
           headers: {
@@ -221,9 +221,10 @@ function DonmoRoundup({
           },
           body: JSON.stringify(donationDoc),
         })
+
         const response = await result.json()
 
-        if (!response || response.status !== 200) throw Error
+        if (!response || response.status !== 200) throw new Error()
       }
 
       // Call addDonation callback provided by the store
@@ -238,7 +239,6 @@ function DonmoRoundup({
 
   async function removeDonation() {
     try {
-      // Cancel donation on a fly if not backend-based
       if (!isBackendBased) {
         const result = await fetch(`${API_URL}/cancel/${orderId}`, {
           method: 'PUT',
@@ -249,7 +249,7 @@ function DonmoRoundup({
         })
 
         const response = await result.json()
-        if (!response || response.status == 500) throw Error
+        if (!response || response.status == 500) throw new Error()
       }
 
       await removeDonationAction()
@@ -264,22 +264,49 @@ function DonmoRoundup({
   // Integration logic
 
   async function syncWithDonmoBackend() {
+    // improbable but possible discrepancy fix
+
     disableRoundupButton()
     const existingDonation = getExistingDonation() || 0
     const backendDonation = await checkDonationAmount()
 
-    // Improbable but possible discrepancy fix
-
     // existingDonation is empty but backendDonation exists => remove backendDonation
     if (!existingDonation && backendDonation) {
-      removeDonation()
+      // Cancel donation on a fly if not backend-based
+      const result = await fetch(`${API_URL}/cancel/${orderId}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          pk: publicKey,
+        },
+      })
+
+      const response = await result.json()
+      if (!response || response.status == 500) throw new Error()
     }
 
     // existingDonation exists but is different from backendDonation => create (and replace) backendDonation
     if (existingDonation && existingDonation !== backendDonation) {
+      // Create donation request
+      const result = await fetch(API_URL, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          pk: publicKey,
+        },
+        body: JSON.stringify({
+          donationAmount: existingDonation,
+          orderId,
+        }),
+      })
+
+      const response = await result.json()
+
+      if (!response || response.status !== 200) throw new Error()
+
       setDonation(existingDonation)
-      createDonation()
     }
+
     enableRoundupButton()
   }
 
@@ -292,9 +319,11 @@ function DonmoRoundup({
       if (!existingDonation) {
         const { donationAmount: calculatedDonation, currencySymbol } =
           await calculateDonation(orderAmount)
+
+        setRoundedUp(false)
+        clearView()
         setDonation(calculatedDonation)
         setCurrencySymbol(currencySymbol)
-        setRoundedUp(false)
       }
 
       if (existingDonation) {
@@ -373,6 +402,10 @@ function DonmoRoundup({
 function responsiveResize(shadow) {
   const width = shadow.getElementById('integration').scrollWidth
 
+  console.log('integration width is:', width)
+
+  console.log('screen.width is:', screen.width)
+
   if (width < 310) {
     shadow.getElementById('logos').style = `flex-wrap: wrap;`
     shadow.querySelector('h4').style = 'white-space: unset;'
@@ -401,7 +434,7 @@ function responsiveResize(shadow) {
   if (width > 740) {
     shadow.getElementById('donmo-content').style = `
     flex-direction: row;
-    gap: 40px;
+    gap: 25px;
     `
   } else {
     shadow.getElementById('donmo-content').style = `flex-direction: column;`
