@@ -402,10 +402,6 @@ function DonmoRoundup({
 function responsiveResize(shadow) {
   const width = shadow.getElementById('integration').scrollWidth
 
-  console.log('integration width is:', width)
-
-  console.log('screen.width is:', screen.width)
-
   if (width < 310) {
     shadow.getElementById('logos').style = `flex-wrap: wrap;`
     shadow.querySelector('h4').style = 'white-space: unset;'
