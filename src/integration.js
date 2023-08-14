@@ -6,6 +6,7 @@ function DonmoRoundup({
   publicKey,
   orderId,
   language = 'en',
+  elementId,
 
   getExistingDonation,
   getGrandTotal,
@@ -22,8 +23,10 @@ function DonmoRoundup({
   const lang = ['en', 'uk'].includes(language) ? language : 'en'
 
   // -- Constants
+  document.getElementById(elementId).style.all = 'initial'
+
   const shadow = document
-    .getElementById('donmo-roundup')
+    .getElementById(elementId)
     .attachShadow({ mode: 'open' })
 
   // -- Variables
