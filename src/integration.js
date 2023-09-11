@@ -1,10 +1,15 @@
-import { API_URL, TRANSLATIONS_URL, INTEGRATION_URL } from './constants'
-
+import {
+  API_URL,
+  TRANSLATIONS_URL,
+  INTEGRATION_URL,
+  CURRENCIES,
+} from './constants'
 const donationBlockElements = ['#donmo-donation-box', '#donmo-donation']
 
 function DonmoRoundup({
   publicKey,
   orderId,
+  currency, // UAH, EUR, USD
   language = 'en',
   elementId,
 
@@ -17,10 +22,13 @@ function DonmoRoundup({
   thankMessage,
   integrationTitle,
   errorMessage,
-
-  isBackendBased = false,
 }) {
   const lang = ['en', 'uk'].includes(language) ? language : 'en'
+  const currencySymbol = CURRENCIES[currency]
+
+  if (!currencySymbol) {
+    throw new Error('Given currency is not supported')
+  }
 
   // -- Constants
   document.getElementById(elementId).style.all = 'initial'
@@ -79,14 +87,6 @@ function DonmoRoundup({
         )
       }
     }
-  }
-
-  function disableRoundupButton() {
-    shadow.getElementById('donmo-roundup-button').disabled = true
-  }
-
-  function enableRoundupButton() {
-    shadow.getElementById('donmo-roundup-button').disabled = false
   }
 
   function clearView() {
@@ -185,27 +185,17 @@ function DonmoRoundup({
   // Donations operations
 
   async function calculateDonation(orderAmount) {
-    const res = await fetch(`${API_URL}/calculate?orderAmount=${orderAmount}`, {
-      headers: {
-        pk: publicKey,
-      },
-    })
-    const data = await res.json() // {donationAmount, currencySymbol}
+    const res = await fetch(
+      `${API_URL}/donation/calculate?orderAmount=${orderAmount}`,
+      {
+        headers: {
+          pk: publicKey,
+        },
+      }
+    )
+    const { donationAmount } = await res.json()
 
-    return data
-  }
-
-  async function checkDonationAmount() {
-    // Fetch (possibly) existing donation by orderId
-    const donationResponse = await fetch(`${API_URL}/check/${orderId}`, {
-      headers: {
-        pk: publicKey,
-      },
-    })
-    const {
-      data: { donationAmount },
-    } = await donationResponse.json()
-    return donationAmount || null
+    return donationAmount
   }
 
   async function createDonation() {
@@ -213,26 +203,10 @@ function DonmoRoundup({
       const donationDoc = {
         donationAmount: currentDonation,
         orderId,
+        currency,
       }
 
-      if (!isBackendBased) {
-        const result = await fetch(API_URL, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            pk: publicKey,
-          },
-          body: JSON.stringify(donationDoc),
-        })
-
-        const response = await result.json()
-
-        if (!response || response.status !== 200) throw new Error()
-      }
-
-      // Call addDonation callback provided by the store
       await addDonationAction(donationDoc)
-
       setRoundedUp(true)
       setSuccessRoundupView()
     } catch (err) {
@@ -242,19 +216,6 @@ function DonmoRoundup({
 
   async function removeDonation() {
     try {
-      if (!isBackendBased) {
-        const result = await fetch(`${API_URL}/cancel/${orderId}`, {
-          method: 'PUT',
-          headers: {
-            'Content-Type': 'application/json',
-            pk: publicKey,
-          },
-        })
-
-        const response = await result.json()
-        if (!response || response.status == 500) throw new Error()
-      }
-
       await removeDonationAction()
 
       setRoundedUp(false)
@@ -266,53 +227,6 @@ function DonmoRoundup({
 
   // Integration logic
 
-  async function syncWithDonmoBackend() {
-    // improbable but possible discrepancy fix
-
-    disableRoundupButton()
-    const existingDonation = getExistingDonation() || 0
-    const backendDonation = await checkDonationAmount()
-
-    // existingDonation is empty but backendDonation exists => remove backendDonation
-    if (!existingDonation && backendDonation) {
-      // Cancel donation on a fly if not backend-based
-      const result = await fetch(`${API_URL}/cancel/${orderId}`, {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-          pk: publicKey,
-        },
-      })
-
-      const response = await result.json()
-      if (!response || response.status == 500) throw new Error()
-    }
-
-    // existingDonation exists but is different from backendDonation => create (and replace) backendDonation
-    if (existingDonation && existingDonation !== backendDonation) {
-      // Create donation request
-      const result = await fetch(API_URL, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          pk: publicKey,
-        },
-        body: JSON.stringify({
-          donationAmount: existingDonation,
-          orderId,
-        }),
-      })
-
-      const response = await result.json()
-
-      if (!response || response.status !== 200) throw new Error()
-
-      setDonation(existingDonation)
-    }
-
-    enableRoundupButton()
-  }
-
   // triggered on first load and every grandTotal change
   async function refresh() {
     if (isLoaded) {
@@ -320,8 +234,7 @@ function DonmoRoundup({
       const orderAmount = getGrandTotal()
 
       if (!existingDonation) {
-        const { donationAmount: calculatedDonation, currencySymbol } =
-          await calculateDonation(orderAmount)
+        const calculatedDonation = await calculateDonation(orderAmount)
 
         setRoundedUp(false)
         clearView()
@@ -330,8 +243,9 @@ function DonmoRoundup({
       }
 
       if (existingDonation) {
-        const { donationAmount: calculatedDonation, currencySymbol } =
-          await calculateDonation(orderAmount - existingDonation)
+        const calculatedDonation = await calculateDonation(
+          orderAmount - existingDonation
+        )
 
         // Compare if the existing donation is the right one or needs to be recalculated
 
@@ -347,11 +261,6 @@ function DonmoRoundup({
           await removeDonation()
           setDonation(calculatedDonation)
         }
-      }
-
-      if (!isBackendBased) {
-        // Resolve backend discrepancy if there is such one (improbable but important)
-        await syncWithDonmoBackend()
       }
     }
   }
