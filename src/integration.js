@@ -168,13 +168,7 @@ function DonmoRoundup({
 
     shadow.getElementById('funds-title').innerText = contentData.funds.title
 
-    shadow.getElementById('prytula-fund-logo').title =
-      contentData.funds.prytulaFund
-
-    shadow.getElementById('come-back-alive-logo').title =
-      contentData.funds.comeBackAlive
-
-    shadow.getElementById('united24-logo').title = contentData.funds.united24
+  
 
     shadow.getElementById('with-love-message').innerText = contentData.withLove
 

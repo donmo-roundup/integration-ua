@@ -18,7 +18,6 @@ module.exports = (env) => {
     entry: './src/integration.js',
     output: {
       path: outputPath,
-      // iife: true,
       library: 'DonmoRoundup',
       libraryExport: 'default',
       filename: 'integration.js',

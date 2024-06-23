@@ -6,13 +6,7 @@
     "errorMessage": "Щось сталось, але спробуйте ще раз",
     "cancelDonationMessage": "Скасувати Донат",
     "contributionMessage": "Ваш внесок в перемогу:",
-    "withLove": "З любов'ю, від ",
-    "funds": {
-      "title": "Фонди:",
-      "prytulaFund": "Фонд Сергія Притули",
-      "comeBackAlive": "Повернись живим",
-      "united24": "United 24"
-    }
+    "withLove": "З любов'ю, від "
   },
   "en": {
     "roundupMessage": "Round up",
@@ -21,12 +15,6 @@
     "errorMessage": "Something happened, but please try again",
     "cancelDonationMessage": "Cancel donation",
     "contributionMessage": "Your contribution to the victory:",
-    "funds": {
-      "title": "Funds:",
-      "prytulaFund": "Serhiy Prytula Charity Foundation",
-      "comeBackAlive": "Come Back Alive",
-      "united24": "United 24"
-    },
     "withLove": "With love, from "
   }
 }
